@@ -1,3 +1,5 @@
+// Defines albedo (color) of an object.
+
 #pragma once
 #include "hittable.h"
 #include "image.h"
@@ -5,13 +7,10 @@
 #include "perlin.h"
 
 class texture {
-
-
     public:
     virtual ~texture() = default;
 
     virtual color value(double u, double v, const point3& p) const = 0;
-
 };
 
 class solid_color : public texture {
@@ -46,13 +45,13 @@ class checker_texture : public texture {
         return mod_sum ? odd->value(u, v, p) : even->value(u, v, p);
     }
 
-
     private:
     double inv_scale;
     shared_ptr<texture> even;
     shared_ptr<texture> odd;
 };
 
+// UV maps an image onto the object.
 class image_texture : public texture {
     public:
     image_texture(const char* image_filename) : image(image_filename) {}

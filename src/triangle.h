@@ -1,3 +1,5 @@
+// Defines triangle, smooth triangle, and triangle mesh geometry.
+
 #pragma once
 
 #include "utility.h"

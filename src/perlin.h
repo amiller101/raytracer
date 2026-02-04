@@ -1,3 +1,5 @@
+// Random noise generated texture
+
 #pragma once
 #include "utility.h"
 

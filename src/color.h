@@ -1,3 +1,5 @@
+// Helpers for vectors representing a color.
+
 #pragma once
 #include "interval.h"
 #include "vec3.h"

@@ -3,6 +3,7 @@
 #include "texture.h"
 #include "hittable.h"
 
+// Defines a background for the scene based on 6 images, a plane for each axis-sign pair.
 class Cube_Map {
 
     public:

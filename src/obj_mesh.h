@@ -1,3 +1,6 @@
+// Tool for parsing .obj files into triangle meshes.
+// Creates triangle mesh with smooth triangles if .obj file contains vertex normals.
+
 #define TINYOBJLOADER_IMPLEMENTATION 
 #include "external/tiny_obj_loader.h"
 

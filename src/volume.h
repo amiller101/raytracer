@@ -1,3 +1,5 @@
+// Defines constant density particle-cloud volumes
+
 #pragma once
 
 #include "hittable.h"

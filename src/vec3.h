@@ -1,12 +1,9 @@
-//tells compiler to only include this header file once, even if you write #include several places
-//Modern replacement for the more classic #ifndef VEC3_h <newline> #def<VEC3_H> <code here> #endif
 #pragma once
-
-//#include "utility.h"
 
 class Vec3 {
 public:
-    //union allows two structures to occupy the same memory. I am effectively creating a set of alias variables.
+
+    // union allows two structures to occupy the same memory, effectively creating a set of alias variables.
     union {
         //for geometry
         struct { double x, y, z; };
@@ -43,7 +40,6 @@ public:
         }
     }
     
-    
     //In-place Addition
     Vec3& operator+=(const Vec3 &summand) {
         this->x += summand.x;
@@ -61,7 +57,6 @@ public:
     }
 
     //In-place Vector entry-wise multiplication
-    //In-place Scalar multiplication
     Vec3& operator*=(const Vec3& v) {
         x *= v.x;
         y *= v.y;
@@ -94,6 +89,7 @@ public:
 
 };
 
+// Std output
 inline std::ostream& operator<<(std::ostream &out, const Vec3 &v) {
     return out << v.x << " " << v.y << " " << v.z;
 }
@@ -150,7 +146,7 @@ inline Vec3 unit_vector(const Vec3& v) {
     return v / v.length();
 }
 
-//returns random vector with canonical entries
+//returns random vector with canonical {in [0,1)} entries
 inline Vec3 random_vector() 
 {
     return Vec3(random_double(), random_double(), random_double());

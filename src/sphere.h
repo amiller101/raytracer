@@ -1,3 +1,5 @@
+// Defines sphere geometry.
+
 #pragma once
 
 #include "utility.h"

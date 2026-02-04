@@ -4,8 +4,7 @@
 #include "bounding_box.h"
 #include <vector>
 
-
-
+// Storage method for several hittable objects in the scene. Has it's own bounding box.
 class hittable_list : public hittable{
 public:
     //list of abstract pointers to hittable objects

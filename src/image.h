@@ -1,3 +1,7 @@
+// Class for loading, storing, and accessing images.
+// Stores images as row-major flattened array of pixels,
+// where each pixel is a flattened array[3*byte] = {red, green, blue} with three 2^8 color channels.
+
 #pragma once
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -41,8 +45,8 @@ class Image {
 
     bool load(const std::string& filename) {
         // Loads the linear (gamma=1) image data from the given file name. Returns true if the
-        // load succeeded. The resulting data buffer contains the three [0.0, 1.0]
-        // floating-point values for the first pixel (red, then green, then blue). Pixels are
+        // load succeeded. The resulting data buffer contains the three
+        // floating-point values in [0.0, 1.0] for the first pixel (red, green, blue). Pixels are
         // contiguous, going left to right for the width of the image, followed by the next row
         // below, for the full height of the image.
 

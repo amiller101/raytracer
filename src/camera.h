@@ -1,3 +1,5 @@
+// Defines camera behavior and the rendering procedure.
+
 #pragma once
 
 #include "hittable.h"

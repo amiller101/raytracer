@@ -1,3 +1,5 @@
+// Defines quad geometry
+
 #pragma once
 
 #include "hittable.h"

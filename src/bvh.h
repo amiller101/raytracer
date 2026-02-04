@@ -1,3 +1,5 @@
+// Defines axis aligned bounding boxes.
+
 #pragma once
 
 #include "hittable.h"
@@ -74,8 +76,8 @@ class BVH_Node : public hittable {
     shared_ptr<hittable> right;
     Bounding_Box bbox;
 
-    //returns false if a is bigger than b for chosen axis.
-    // ''     true if b is bigger than a for chosen axis.
+    // returns false if a is bigger than b for chosen axis.
+    // returns true if b is bigger than a for chosen axis.
     static bool box_compare(const shared_ptr<hittable> a, const shared_ptr<hittable> b, int axis_index)
     {
         auto a_axis_interval = a->bounding_box().axis_interval(axis_index);

@@ -1,3 +1,5 @@
+// Helpers for interval storage and manipulation.
+
 #pragma once
 
 class interval{

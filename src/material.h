@@ -1,3 +1,5 @@
+// Materials define how light bounces upon intersection with an object.
+
 #pragma once
 
 #include "hittable.h"

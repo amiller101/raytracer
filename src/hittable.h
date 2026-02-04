@@ -4,6 +4,7 @@
 
 class material;
 
+// A convenient data structure for storing ray-hittable intersection information.
 class hit_record
 {
     public:
@@ -24,6 +25,7 @@ class hit_record
     }
 };
 
+// Represents an object in the scene for which we'd like to check ray intersections.
 class hittable
 {
     public:
@@ -35,6 +37,7 @@ class hittable
     virtual Bounding_Box bounding_box() const = 0;
 };
 
+// Creates a hittable in the scene at a given translation away from the scene's origin.
 class translate : public hittable {
     public:
 

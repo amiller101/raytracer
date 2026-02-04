@@ -1,5 +1,6 @@
-#include "utility.h"
+// Creates scenes and call's Camera to render them.
 
+#include "utility.h"
 #include "hittable.h"
 #include "hittable_list.h"
 #include "sphere.h"
