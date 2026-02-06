@@ -203,3 +203,16 @@ inline Vec3 refract(const Vec3& uv, const Vec3& normal, double refractive_indice
     Vec3 r_out_parallel = -std::sqrt(std::fabs(1.0 - r_out_perp.length_squared())) * normal;
     return r_out_perp + r_out_parallel;
 }
+
+inline Vec3 random_cosine_direction() {
+    auto r1 = random_double();
+    auto r2 = random_double();
+
+    auto phi = 2*pi*r1;
+
+    auto z = std::sqrt(1-r2);
+    auto x = std::cos(phi) * std::sqrt(r2);
+    auto y = std::sin(phi) * std::sqrt(r2);
+
+    return Vec3(x, y, z);
+}

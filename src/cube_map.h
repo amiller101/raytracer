@@ -21,7 +21,7 @@ class Cube_Map {
       neg_z(make_shared<image_texture>((std::string(cubemap_foldername) + "/negz.jpg").c_str())) {}
 
 
-    color value(const Vec3& dir)
+    color value(const Vec3& dir) const
     {
         //locally unitize
         Vec3 direction = unit_vector(dir);

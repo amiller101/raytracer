@@ -75,7 +75,7 @@ void bouncing_spheres() {
     cam.defocus_angle = 0.6;
     cam.focus_dist    = 10.0;
 
-    cam.render(world);
+    ////cam.render(world);
     
 
 }
@@ -104,7 +104,7 @@ void checkered_spheres() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    //cam.render(world);
 
 
 }
@@ -130,7 +130,7 @@ void earth() {
 
     cam.defocus_angle = 0;
 
-    cam.render(hittable_list(globe));
+    //cam.render(hittable_list(globe));
 }
 
 void triangles() {
@@ -159,7 +159,7 @@ void triangles() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 
@@ -222,7 +222,7 @@ void quads() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 void basic_lights() {
@@ -256,42 +256,57 @@ void basic_lights() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 void cornell_box() {
-    hittable_list world;
+        hittable_list world;
 
     auto red   = make_shared<lambertian>(color(.65, .05, .05));
     auto white = make_shared<lambertian>(color(.73, .73, .73));
     auto green = make_shared<lambertian>(color(.12, .45, .15));
     auto light = make_shared<emissive>(color(15, 15, 15));
 
-    world.add(make_shared<quad>(point3(555,0,0), Vec3(0,555,0), Vec3(0,0,555), green));
-    world.add(make_shared<quad>(point3(0,0,0), Vec3(0,555,0), Vec3(0,0,555), red));
-    world.add(make_shared<quad>(point3(343, 554, 332), Vec3(-130,0,0), Vec3(0,0,-105), light));
-    world.add(make_shared<quad>(point3(0,0,0), Vec3(555,0,0), Vec3(0,0,555), white));
-    world.add(make_shared<quad>(point3(555,555,555), Vec3(-555,0,0), Vec3(0,0,-555), white));
-    world.add(make_shared<quad>(point3(0,0,555), Vec3(555,0,0), Vec3(0,555,0), white));
-    world.add(box(point3(130, 0, 65), point3(295, 165, 230), white));
-    world.add(box(point3(265, 0, 295), point3(430, 330, 460), white));
+    // Cornell box sides
+    world.add(make_shared<quad>(point3(555,0,0), Vec3(0,0,555), Vec3(0,555,0), green));
+    world.add(make_shared<quad>(point3(0,0,555), Vec3(0,0,-555), Vec3(0,555,0), red));
+    world.add(make_shared<quad>(point3(0,555,0), Vec3(555,0,0), Vec3(0,0,555), white));
+    world.add(make_shared<quad>(point3(0,0,555), Vec3(555,0,0), Vec3(0,0,-555), white));
+    world.add(make_shared<quad>(point3(555,0,555), Vec3(-555,0,0), Vec3(0,555,0), white));
+
+    // Light
+    world.add(make_shared<quad>(point3(213,554,227), Vec3(130,0,0), Vec3(0,0,105), light));
+    auto empty_material = shared_ptr<material>();
+    quad lights(point3(213,554,227), Vec3(130,0,0), Vec3(0,0,105), empty_material);
+
+    // Box 1
+    shared_ptr<hittable> box1 = box(point3(0,0,0), point3(165,330,165), white);
+    //box1 = make_shared<rotate_y>(box1, 15);
+    box1 = make_shared<translate>(box1, Vec3(265,0,295));
+    world.add(box1);
+
+    // Box 2
+    shared_ptr<hittable> box2 = box(point3(0,0,0), point3(165,165,165), white);
+    //box2 = make_shared<rotate_y>(box2, -18);
+    box2 = make_shared<translate>(box2, Vec3(130,0,65));
+    world.add(box2);
 
     Camera cam;
 
     cam.aspect_ratio      = 1.0;
     cam.image_width       = 600;
-    cam.samples_per_pixel = 200; //64
+    cam.samples_per_pixel = 10;
     cam.max_depth         = 50;
     cam.background        = color(0,0,0);
 
     cam.vfov     = 40;
     cam.position = point3(278, 278, -800);
     cam.direction   = point3(278, 278, 0);
-    cam.up      = Vec3(0,1,0);
+    cam.up      = Vec3(0, 1, 0);
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    cam.render(world, lights);
 }
 
 
@@ -328,7 +343,7 @@ void first_model() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 
@@ -355,7 +370,7 @@ void perlin() {
     cam.background        = color(0.70, 0.80, 1.00);
 
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 void cube_map() {
@@ -395,7 +410,7 @@ void cube_map() {
     cam.background        = color(0.70, 0.80, 1.00);
     cam.set_cubemap("cube_maps/Park2");
 
-    cam.render(world);
+    //cam.render(world);
 }
 
  
@@ -422,7 +437,7 @@ void pretty_sphere() {
     cam.background        = color(0.70, 0.80, 1.00);
     cam.set_cubemap("cube_maps/Earth");
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 
@@ -465,7 +480,7 @@ void cornell_smoke() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 
@@ -518,7 +533,7 @@ void marble_gallery() {
     cam.defocus_angle = 0.6;
     cam.focus_dist    = 10.0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 
@@ -621,7 +636,7 @@ void motion_blur_symphony() {
 
     cam.defocus_angle = 0;  // No DOF to focus on motion blur
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 
@@ -678,7 +693,7 @@ void crystal_garden() {
     cam.defocus_angle = 1.5;  // Strong depth of field
     cam.focus_dist    = 8.0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 
@@ -733,7 +748,7 @@ void foggy_cathedral() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 
@@ -784,7 +799,7 @@ void noisy_landscape() {
     cam.defocus_angle = 1.2;
     cam.focus_dist    = 12.0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 
@@ -845,7 +860,7 @@ void metallic_showcase() {
     cam.defocus_angle = 0.8;
     cam.focus_dist    = 12.0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 void final_scene() {
@@ -923,12 +938,12 @@ void final_scene() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    //cam.render(world);
 }
 
 int main()
 {
-    switch(5) {
+    switch(7) {
         case 1: bouncing_spheres(); break;
         case 2: checkered_spheres(); break;
         case 3: earth(); break;

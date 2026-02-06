@@ -12,6 +12,10 @@ class quad: public hittable {
         normal = unit_vector(n);
         D = dot(normal, Q);
         w = n / dot (n, n);
+        area = n.length();
+
+        set_bounding_box();
+
     }
 
     virtual void set_bounding_box() {
@@ -66,16 +70,32 @@ class quad: public hittable {
         return true;
     }
 
+    double pdf_value(const point3& origin, const Vec3& direction) const override {
+        hit_record rec;
+        if (!this->hit(Ray(origin, direction), interval(0.001, infinity), rec))
+        { return 0;}
+
+        auto distance_squared = rec.t * rec.t * direction.length_squared();
+        auto cosine = std::fabs(dot(direction, rec.normal) / direction.length());
+
+        return distance_squared / (cosine * area);
+    }
+
+    Vec3 random(const point3& origin) const override {
+        auto point = Q + (random_double() * u) + (random_double() * v);
+        return point - origin;
+    }
+
     private:
     point3 Q;
     Vec3 u;
     Vec3 v;
+    Vec3 w;
     Vec3 normal;
     shared_ptr<material> mat;
     Bounding_Box bbox;
     double D;
-    Vec3 w;
-
+    double area;
 };
 
 inline shared_ptr<hittable_list> box(const point3& a, const point3& b, shared_ptr<material> mat)

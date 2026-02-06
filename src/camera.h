@@ -6,6 +6,7 @@
 #include "material.h"
 #include <omp.h> 
 #include "cube_map.h"
+#include "pdf.h"
 
 class Camera{
     public:
@@ -25,7 +26,7 @@ class Camera{
     double focus_dist = 10; //Distance from the camera position to the focus plane
     
 
-    void render(const hittable& world){
+    void render(const hittable& world, const hittable& lights){
         initialize();
 
         std::vector<color> frame_buffer(image_width * image_height);
@@ -42,10 +43,12 @@ class Camera{
             for (int i = 0; i < image_width; i++) {
                 color pixel_color(0,0,0);
                 //for each pixel/point, render as an average of randomly chosen nearby points.
-                for (int sample = 0; sample < samples_per_pixel; sample++) {
-                    Ray r = get_ray(i, j);
-                        pixel_color += ray_color(r, max_depth, world);
-                    }   
+                for (int s_j = 0; s_j < sqrt_spp; s_j++) {
+                    for (int s_i = 0; s_i < sqrt_spp; s_i++) {
+                        Ray r = get_ray(i, j, s_i, s_j);
+                        pixel_color += ray_color(r, max_depth, world, lights);
+                    }
+                } 
                 frame_buffer[j * image_width + i] = pixel_samples_scale * pixel_color;
 
                 #pragma omp critical
@@ -79,9 +82,11 @@ class Camera{
 
 
     private:
-    int image_height;       //Rendered image height
+    int image_height;       // Rendered image height
     double pixel_samples_scale;  // Color scale factor for a sum of pixel samples
-    
+    int sqrt_spp; // sqrt of samples per pixel
+    double recip_sqrt_spp; // 1/sqrt_spp
+
     point3 pixel00_loc;     //Location of pixel 0, 0
     Vec3 pixel_delta_u;     //Offset to pixel to the right
     Vec3 pixel_delta_v;     //Offset to pixel below
@@ -95,7 +100,9 @@ class Camera{
         //ensure height > 1.
         image_height = (image_height < 1) ? 1 : image_height;
 
-        pixel_samples_scale = 1.0 / samples_per_pixel;
+        sqrt_spp = int(std::sqrt(samples_per_pixel));
+        pixel_samples_scale = 1.0 / (sqrt_spp * sqrt_spp);
+        recip_sqrt_spp = 1.0 / sqrt_spp;
 
         //relative basis for camera 
         // <x, y, z> : <u, v, w>
@@ -129,9 +136,9 @@ class Camera{
     }
 
     // Construct a camera ray originating from the defocus disk at the origin
-    // and directed at randomly sampled point around the pixel location i, j
-    Ray get_ray(int i, int j) const{
-        auto offset = sample_square();
+    // and directed at randomly sampled point around the pixel location i, j for stratified square with topleft corner at (s_i,s_j)
+    Ray get_ray(int i, int j, int s_i, int s_j) const{
+        auto offset = sample_square_stratified(s_i, s_j);
         auto pixel_sample = pixel00_loc + ((i + offset.x) * pixel_delta_u) + ((j + offset.y) * pixel_delta_v);
 
         auto ray_origin = (defocus_angle <= 0) ? position: defocus_disk_sample();
@@ -140,6 +147,16 @@ class Camera{
 
         return Ray(ray_origin, ray_direction, ray_time);
 
+    }
+
+    Vec3 sample_square_stratified(int s_i, int s_j) const {
+        // Returns the vector to a random point in the square sub-pixel specified by grid
+        // indices s_i and s_j, for an idealized unit square pixel [-.5,-.5] to [+.5,+.5].
+
+        auto px = ((s_i + random_double()) * recip_sqrt_spp) - 0.5;
+        auto py = ((s_j + random_double()) * recip_sqrt_spp) - 0.5;
+
+        return Vec3(px, py, 0);
     }
 
     // Returns a random point in the camera defocus disk
@@ -153,7 +170,7 @@ class Camera{
         return Vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 
-    color ray_color(const Ray& r, int depth, const hittable& world){
+    color ray_color(const Ray& r, int depth, const hittable& world, const hittable& lights) const {
         //if exceeded bounce limit, gather no light.
         if (depth <= 0)
         {
@@ -174,15 +191,28 @@ class Camera{
         //if we did hit something...
         color attenuation;
         Ray scattered;
-        color emission = rec.mat->emitted(rec.u, rec.v, rec.collision);
+        double pdf_val;
+        color emission = rec.mat->emitted(r, rec, rec.u, rec.v, rec.collision);
+
+        //if we don't scatter, return just emission.
+        if (!rec.mat->scatter(r, rec, attenuation, scattered, pdf_val))
+        {
+            return emission;
+        }
 
         //if we scattered, follow next ray
-        if (rec.mat->scatter(r, rec, attenuation, scattered))
-        {
-            return emission + attenuation * ray_color(scattered, depth-1, world);
-        }
-        //otherwise return just emission
-        return emission;
+        auto light_pdf = make_shared<hittable_pdf>(lights, rec.collision);
+        auto surface_pdf = make_shared<cosine_pdf>(rec.normal);
+        mixture_pdf mixed_pdf(light_pdf, surface_pdf);
+
+        scattered = Ray(rec.collision, mixed_pdf.generate(), r.time);
+        pdf_val = mixed_pdf.value(scattered.direction);
+
+        double scattering_pdf = rec.mat->scattering_pdf(r, rec, scattered);
+
+        color sample_color = ray_color(scattered, depth-1, world, lights);
+        color scatter = (attenuation * scattering_pdf * sample_color) / pdf_val;
+        return emission + scatter;
     }
     
 };

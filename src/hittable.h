@@ -35,6 +35,15 @@ class hittable
     virtual bool hit(const Ray& r, interval ray_t, hit_record& rec) const = 0;
 
     virtual Bounding_Box bounding_box() const = 0;
+
+    virtual double pdf_value(const point3& origin, const Vec3& direction) const {
+        return 0.0;
+    }
+
+    // A random point on the hittable
+    virtual Vec3 random(const point3& origin) const {
+        return Vec3(1,0,0);
+    }
 };
 
 // Creates a hittable in the scene at a given translation away from the scene's origin.

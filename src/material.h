@@ -1,8 +1,9 @@
-// Materials define how light bounces upon intersection with an object.
+// Define how light bounces upon intersection with an object.
 
 #pragma once
 
 #include "hittable.h"
+#include "onb.h"
 #include "texture.h"
 
 class material {
@@ -11,48 +12,62 @@ class material {
 
     //input: incoming ray, hit record data including the collision normal (defines reflectance behavior)
     //output: color of the material hit, reflected ray
-    virtual bool scatter(const Ray& ray_in, const hit_record& rec, color& attenuation, Ray& scattered) const {
+    virtual bool scatter(const Ray& ray_in, const hit_record& rec, color& attenuation, Ray& scattered, double& pdf) const {
       return false;
     }
 
     //If un-implemented, does not emit.
-    virtual color emitted(double u, double v, const point3& p) const {
+    virtual color emitted(const Ray& r_in , const hit_record& rec, double u, double v, const point3& p) const {
       return color(0,0,0);
     }
 
+    virtual double scattering_pdf(const Ray& r_in, const hit_record& rec, const Ray& scattered) const {
+      return 0;
+    }
 };
 
+// Diffuse material
 class lambertian : public material{
   public:
     lambertian(const color& albedo) : tex(make_shared<solid_color>(albedo)) {}
     lambertian(shared_ptr<texture> tex) : tex(tex) {}
 
     //Returns true because it always reflects. 
-    bool scatter(const Ray& r_in, const hit_record& rec, color& attenuation, Ray& scattered) const override {
-        auto scatter_direction = rec.normal + random_unit_vector();
+    bool scatter(const Ray& r_in, const hit_record& rec, color& attenuation, Ray& scattered, double& pdf) const override {
+      onb uvw(rec.normal);
 
-        //Catch edge-case scatter direction
-        if (scatter_direction.near_zero())
-        {
-          scatter_direction = rec.normal;
-        }
+      //generate a random cos direction and convert to normal-based onb coordinates
+      auto scatter_direction = uvw.transform(random_cosine_direction());
+      
+      //Catch edge-case scatter direction
+      if (scatter_direction.near_zero())
+      {
+        scatter_direction = rec.normal;
+      }
 
-        scattered = Ray(rec.collision, scatter_direction, r_in.time);
-        attenuation = tex->value(rec.u, rec.v, rec.collision);
-        return true;
+      scattered = Ray(rec.collision, unit_vector(scatter_direction), r_in.time);
+      attenuation = tex->value(rec.u, rec.v, rec.collision);
+      pdf = dot(uvw.w(), scattered.direction) / pi;
+      return true;
+    }
+
+    double scattering_pdf(const Ray& r_in, const hit_record& rec, const Ray& scattered) const override {
+      auto cos_theta = dot(rec.normal, unit_vector(scattered.direction));
+      return cos_theta < 0 ? 0 : cos_theta/pi;
     }
 
   private:
     shared_ptr<texture> tex;
 };
 
+// Transparent material
 class specular :public material {
   public:
     specular(const color& albedo, double fuzz) : tex(make_shared<solid_color>(albedo)), fuzz(fuzz < 1 ? fuzz : 1) {}
     specular(shared_ptr<texture> tex, double fuzz) : tex(tex), fuzz(fuzz < 1 ? fuzz : 1) {}
 
 
-    bool scatter(const Ray& r_in, const hit_record& rec, color& attenuation, Ray& scattered) const override {
+    bool scatter(const Ray& r_in, const hit_record& rec, color& attenuation, Ray& scattered, double& pdf) const override {
         //calculate reflection
         Vec3 reflected = reflect(r_in.direction, rec.normal);
         //add fuzziness
@@ -68,11 +83,12 @@ class specular :public material {
     double fuzz;
 };
 
+// Shiny material
 class dielectric : public material {
   public:
     dielectric(double refraction_index) : refraction_index(refraction_index) {}
 
-    bool scatter(const Ray& r_in, const hit_record& rec, color& attenuation, Ray& scattered) const override {
+    bool scatter(const Ray& r_in, const hit_record& rec, color& attenuation, Ray& scattered, double& pdf) const override {
       attenuation = color(1.0, 1.0, 1.0);
       double ri = rec.front_face ? (1.0/refraction_index) : refraction_index;
 
@@ -108,14 +124,18 @@ class dielectric : public material {
   
 };
 
-
+// Light sources
 class emissive : public material {
   public:
     emissive(const color& emission) : tex(make_shared<solid_color>(emission)) {}
     emissive(shared_ptr<texture> tex) : tex(tex) {}
 
     //always absorbs rays. 
-    color emitted(double u, double v, const point3& p) const override {
+    color emitted(const Ray& r_in, const hit_record& rec, double u, double v, const point3& p) const override {
+      //only send light from one side.
+      if (!rec.front_face)
+        return color(0,0,0);
+
       return tex->value(u, v, p);
     }
 
@@ -123,16 +143,21 @@ class emissive : public material {
     shared_ptr<texture> tex;
 };
 
-
+// Volumes
 class isotropic : public material{
   public:
     isotropic(const color& albedo) : tex(make_shared<solid_color>(albedo)) {}
     isotropic(shared_ptr<texture> tex) : tex(tex) {}
 
-    bool scatter(const Ray& r_in, const hit_record& rec, color& attenuation, Ray& scattered) const override {
+    bool scatter(const Ray& r_in, const hit_record& rec, color& attenuation, Ray& scattered, double& pdf) const override {
       scattered = Ray(rec.collision, random_unit_vector(), r_in.time);
       attenuation = tex->value(rec.u, rec.v, rec.collision);
+      pdf = 1/(4*pi);
       return true;
+    }
+
+    double scattering_pdf(const Ray& r_in, const hit_record& rec, const Ray& scattered) const override  {
+      return 1/(4*pi);
     }
 
   private:
