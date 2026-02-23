@@ -1,5 +1,3 @@
-### GitHub
-https://github.com/amiller101/Raytracer
 
 # How To Use
 ## Build Project 
