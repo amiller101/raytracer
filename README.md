@@ -1,10 +1,9 @@
 
-# A Feature-Rich CPU Ray Tracer
+# Ray Tracer
 
 A physically-based, offline **CPU ray tracer written from scratch in C++**. It supports textured
-primitives and triangle meshes, emissive materials, a BVH acceleration structure, stochastic
-sampling, and OpenMP parallelism, plus advanced effects: volumetric rendering, motion blur,
-depth of field, procedural textures, cube maps, and smooth (normal-interpolated) shading.
+primitives and triangle meshes, emissive materials, a BVH acceleration structure (aabb), stochastic
+sampling, OpenMP parallelism, and more.
 
 Built following Peter Shirley's *Ray Tracing in One Weekend* series as a foundation, then
 extended well beyond it. See [`Raytracer.pdf`](Raytracer.pdf) for the full write-up.
@@ -38,24 +37,26 @@ extended well beyond it. See [`Raytracer.pdf`](Raytracer.pdf) for the full write
 ## Features
 
 **Core rendering**
-- Recursive path tracing with a fully configurable camera (position, direction, FOV, resolution).
-- Stochastic anti-aliasing (stratified sub-pixel sampling).
-- Ray–sphere and ray–triangle intersection; UV-textured spheres and triangles.
+- Recursive path tracing with a fully configurable camera (position, orientation, FOV, resolution)
+- Stochastic anti-aliasing (stratified sub-pixel sampling)
+- Ray–sphere, ray–triangle, and ray-quad intersection; UV-textured spheres and triangles
+- Ray intersections and UV texture mapping with spheres, triangles, and quads
 - Diffuse, specular, dielectric, and emissive materials.
-- **BVH** spatial acceleration for logarithmic-time intersection on complex scenes.
+- Axis aligned bounding boxes for logarithmic-time intersection on complex scenes
 
 **Camera effects**
-- Motion blur — rays carry a time component and objects follow arbitrary position functions, with bounding boxes built from adaptive sampling of each function's range.
-- Depth of field via a thin-lens camera model (configurable focus distance and defocus angle).
+- Motion blur: time-paramaterized rays and objects. Objects follow arbitrary position functions with bounding boxes built from adaptive sampling of each function's range
+
+- Depth of field via thin-lens camera mode; configurable focus distance and defocus angle
 
 **Advanced rendering**
-- Triangle mesh loading from **OBJ** files (via tinyobjloader).
-- Volumetric rendering (constant-density participating media — smoke/fog).
-- Procedural textures from Perlin noise.
-- Cube maps (six axis-aligned images as an environment background).
-- Quads and normal interpolation (smooth mesh shading).
-- Object instancing (translate/reuse geometry).
-- **OpenMP** CPU multithreading for per-pixel rendering.
+- Triangle mesh loading from OBJ files (via tinyobjloader)
+- Volumetric rendering (constant-density participating media)
+- Procedural textures from Perlin noise
+- Cube maps
+- Normal interpolation for smooth mesh shading
+- OpenMP CPU multithreading for per-pixel rendering
+- Object instancing (translate/reuse geometry)
 
 ## Building
 
@@ -78,8 +79,7 @@ case number to select a scene, then rebuild. The renderer writes a PPM image to 
 build/Raytracer.exe > results/image.ppm
 ```
 
-Open `results/image.ppm` in a viewer that supports PPM (e.g. IrfanView or GIMP), or convert it,
-e.g. with ImageMagick: `magick results/image.ppm results/image.png`.
+Open `results/image.ppm` in a viewer that supports PPM (e.g. IrfanView)
 
 > Model scenes (e.g. the dice) expect OBJ geometry under `assets/models/`. The material/texture
 > files are included, but large `.obj` mesh files are not bundled — drop them in the matching
@@ -89,13 +89,20 @@ e.g. with ImageMagick: `magick results/image.ppm results/image.png`.
 
 ```
 raytracer/
-├── src/                 # renderer source (header-only components + main.cpp)
-│   ├── main.cpp         # scene definitions; pick a scene in main()'s switch
-│   ├── camera.h         # camera model + OpenMP-parallel render loop
-│   ├── material.h       # diffuse / specular / dielectric / emissive materials
-│   ├── sphere.h, quad.h, triangle.h, obj_mesh.h, volume.h   # geometry
-│   ├── bvh.h            # bounding-volume hierarchy acceleration
-│   ├── texture.h, image.h, cube_map.h, perlin.h             # textures & environment
+├── src/                 # renderer source
+│   ├── main.cpp         # scene definitions; pick a scene in main() switch
+│   ├── camera.h         # camera model + render loop
+│   ├── material.h       # diffuse/specular/dielectric/emissive materials
+│   ├── sphere.h         # geometry
+|   ├── quad.h           #
+|   ├── triangle.h       #
+|   ├── obj_mesh.h       #
+|   ├── volume.h         #
+│   ├── bvh.h            # bounding-volume hierarchy (aabb)
+│   ├── texture.h,       # textures & environment
+|   ├── image.h,         #
+|   ├── cube_map.h       #
+|   ├── perlin.h         #
 │   ├── pdf.h, onb.h     # importance sampling (work in progress)
 │   └── external/        # stb_image.h, tiny_obj_loader.h (third-party)
 ├── assets/              # render inputs
@@ -127,7 +134,7 @@ half as bright as `(255,255,255)`.
   cut noise and speed convergence. The latest image in `results/` uses the current partial
   implementation.
 - An **Eckart–Young (SVD) low-rank approximation** pass over rendered images as a stylized
-  compression effect — low ranks introduce banding for a "Ghost in the Shell" look
+  compression effect. Low ranks introduce banding for a "Ghost in the Shell" look
   (prototype in `WIP/Eckart_Young.cpp`; requires the Eigen library and the commented targets in
   `CMakeLists.txt`).
 - GPU acceleration and physical simulation.
