@@ -94,15 +94,15 @@ raytracer/
 │   ├── camera.h         # camera model + render loop
 │   ├── material.h       # diffuse/specular/dielectric/emissive materials
 │   ├── sphere.h         # geometry
-|   ├── quad.h           #
-|   ├── triangle.h       #
-|   ├── obj_mesh.h       #
-|   ├── volume.h         #
+|   ├── quad.h           #   "
+|   ├── triangle.h       #   "
+|   ├── obj_mesh.h       #   "
+|   ├── volume.h         #   "
 │   ├── bvh.h            # bounding-volume hierarchy (aabb)
 │   ├── texture.h,       # textures & environment
-|   ├── image.h,         #
-|   ├── cube_map.h       #
-|   ├── perlin.h         #
+|   ├── image.h,         #   "
+|   ├── cube_map.h       #   "
+|   ├── perlin.h         #   "
 │   ├── pdf.h, onb.h     # importance sampling (work in progress)
 │   └── external/        # stb_image.h, tiny_obj_loader.h (third-party)
 ├── assets/              # render inputs
