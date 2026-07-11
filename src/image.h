@@ -16,24 +16,24 @@ class Image {
     Image() {}
 
     Image(const char* image_filename) {
-        // Loads image data from the specified file. searches for the specified image file first from the current directory, then in the
-        // images/ subdirectory, then the _parent's_ images/ subdirectory, and then _that_
-        // parent, on so on, for six levels up. If the image was not loaded successfully,
+        // Loads image data from the specified file. Searches for the specified image file first from the current directory, then in the
+        // assets/images/ (and assets/cube_maps/) subdirectory, then the _parent's_ assets/images/ subdirectory, and then _that_
+        // parent, and so on, for six levels up. If the image was not loaded successfully,
         // width() and height() will return 0.
 
         auto filename = std::string(image_filename);
 
         // Hunt for the image file in some likely locations.
         if (load(filename)) return;
-        if (load("images/" + filename)) return;
-        if (load("cube_maps/" + filename)) return;
-        if (load("../images/" + filename)) return;
-        if (load("../cube_maps/" + filename)) return;
-        if (load("../../images/" + filename)) return;
-        if (load("../../../images/" + filename)) return;
-        if (load("../../../../images/" + filename)) return;
-        if (load("../../../../../images/" + filename)) return;
-        if (load("../../../../../../images/" + filename)) return;
+        if (load("assets/images/" + filename)) return;
+        if (load("assets/cube_maps/" + filename)) return;
+        if (load("../assets/images/" + filename)) return;
+        if (load("../assets/cube_maps/" + filename)) return;
+        if (load("../../assets/images/" + filename)) return;
+        if (load("../../../assets/images/" + filename)) return;
+        if (load("../../../../assets/images/" + filename)) return;
+        if (load("../../../../../assets/images/" + filename)) return;
+        if (load("../../../../../../assets/images/" + filename)) return;
 
         std::cerr << "ERROR: Could not load image file '" << image_filename << "'.\n";
     }

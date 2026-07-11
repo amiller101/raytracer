@@ -44,7 +44,7 @@ shared_ptr<hittable> load_obj_mesh(const std::string& filename, bool smooth)
         shared_ptr<texture> diffuse_tex;
 
         if (!m.diffuse_texname.empty()) {
-            std::string path =  "../models/" + m.diffuse_texname;
+            std::string path =  "../assets/models/" + m.diffuse_texname;
             diffuse_tex = make_shared<image_texture>(path.c_str());
         } else {
             diffuse_tex = make_shared<solid_color>(

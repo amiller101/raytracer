@@ -212,7 +212,7 @@ void quads() {
     cam.samples_per_pixel = 200;//100
     cam.max_depth         = 50;//50
     cam.background        = color(0.70, 0.80, 1.00);
-    cam.set_cubemap("cube_maps/Earth");
+    cam.set_cubemap("assets/cube_maps/Earth");
 
 
     cam.vfov     = 30; //165
@@ -314,8 +314,8 @@ void cornell_box() {
 void first_model() {
     hittable_list world;
 
-    auto smooth_die = load_obj_mesh("models/dice-obj/dicea_LOD3.obj", true);
-    auto die = load_obj_mesh("models/dice-obj/dicea_LOD3.obj", false);
+    auto smooth_die = load_obj_mesh("assets/models/dice-obj/dicea_LOD3.obj", true);
+    auto die = load_obj_mesh("assets/models/dice-obj/dicea_LOD3.obj", false);
 
     //world.add(die);
 
@@ -408,7 +408,7 @@ void cube_map() {
 
     cam.defocus_angle = 0;
     cam.background        = color(0.70, 0.80, 1.00);
-    cam.set_cubemap("cube_maps/Park2");
+    cam.set_cubemap("assets/cube_maps/Park2");
 
     //cam.render(world);
 }
@@ -435,7 +435,7 @@ void pretty_sphere() {
 
     cam.defocus_angle = 0;
     cam.background        = color(0.70, 0.80, 1.00);
-    cam.set_cubemap("cube_maps/Earth");
+    cam.set_cubemap("assets/cube_maps/Earth");
 
     //cam.render(world);
 }
